@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱心表白便签</title>
+    <script src="js/111.js"></script>
+    <link href="css/111.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background-color: #fdf2f7;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            transition: background-color 0.5s ease;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #fdf2f7;
+            z-index: 100;
+            transition: opacity 0.8s ease;
+        }
+
+        .love-note {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: #f43f5e;
+            transform: rotate(45deg) scale(0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+            z-index: 10;
+        }
+
+        .love-note::before,
+        .love-note::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: inherit;
+            border-radius: 50%;
+        }
+
+        .love-note::before {
+            top: -50px;
+            left: 0;
+        }
+
+        .love-note::after {
+            top: 0;
+            left: -50px;
+        }
+
+        .note-text {
+            position: relative;
+            z-index: 20;
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            transform: rotate(-45deg);
+            width: 80px;
+            line-height: 1.3;
+        }
+
+        .love-note.show {
+            opacity: 0.9;
+            transform: rotate(45deg) scale(1);
+        }
+
+        /* 不同颜色的爱心便签 */
+        .color-1 { background-color: #f43f5e; }
+        .color-2 { background-color: #ec4899; }
+        .color-3 { background-color: #8b5cf6; }
+        .color-4 { background-color: #ec4899; }
+        .color-5 { background-color: #f97316; }
+    </style>
+</head>
+<body>
+    <div class="start-screen">
+        <i class="fa fa-heart text-6xl text-pink-500 mb-6 animate-pulse"></i>
+        <h1 class="text-3xl md:text-4xl font-bold text-pink-700 mb-4">给你的一封信</h1>
+        <p class="text-pink-600 max-w-md text-center px-4">你他M给我看！！！</p>
+    </div>
+
+    <script>
+        // 表白文案列表（50条）
+        const loveMessages = [
+            "不管多远，心都和你在一起",
+            "今天的风，都带着对你的思念",
+            "喜欢你的一切，包括小缺点",
+            "想和你一起做很多很多事",
+            "我的心意，你感受到了吗",
+            "见到你，所有烦恼都消失了",
+            "你在我心里，很重要",
+            "记得按时吃饭，别亏待自己",
+            "我想每天都能见到你",
+            "你的声音，很动听",
+            "喜欢你，没有为什么",
+            "记得好好照顾自己我会想你",
+            "和你聊天，时间总是过得很快",
+            "我想和你有很多很多以后",
+            "记得吃早餐，对身体好",
+            "你是我不期而遇的惊喜",
+            "我喜欢你，认真且坚定",
+            "想牵着你的手，一直走下去",
+            "你是我最想珍惜的人晚风轻拂窗前月",
+            "一念相思到天明人间烟火千万里",
+			"唯有心事总念你不见君颜三两日",
+			"相思已绕万千回提笔难书心上事",
+			"字字句句皆是你山高水远路漫漫",
+			"岁岁年年总念安寻常日子寻常过",
+			"只是常常想起你相隔千里共星河",
+			"朝朝暮暮念君多清风若解相思意",
+			"替我轻轻吻你额山高水远路迢迢",
+			"心随明月到君朝纵然相隔千万里",
+			"一眼相思未曾消两地相思一样愁",
+			"清风寄语到心头愿君岁岁常安好",
+			"我亦年年为你留君在天涯我在尘",
+			"相思一缕系晨昏不问人间多远路",
+			"只愿余生共温存一别天涯各一方",
+			"相思夜夜入柔肠待到相逢重聚日不负流年不负郎",
+			"一日不见如隔秋，万般心事上眉头",
+			"晚风捎去相思意，不知君处可曾知",
+			"人间烟火千万种，唯你入我相思梦",
+			"提笔欲写相思句，落笔全是你的名",
+			"星河万里皆过客，唯有一人念不休",
+			"朝思暮想皆是你，岁岁年年盼相依",
+			"此心向君无别意，只愿常伴不相离",
+			"清风不解相思苦，偏吹旧梦到窗前",
+			"纵有千山隔万里，相思依旧绕心间",
+			"一念相思起天涯亦咫尺",
+			"晚风知我意吹梦到君旁",
+			"人间千万景不及你模样",
+			"朝暮皆念你风月也寻常",
+			"心有千千结结结为君系",
+			"相思无远近日夜绕心房",
+			"提笔皆是你落笔又思量",
+			"山高水亦远难阻我痴念",
+			"此生唯一愿岁岁长相见",
+			"一眼惊鸿余生皆你",
+			"山河万里唯你入心",
+			"朝朝暮暮岁岁年年共你人间",
+			"风遇山止船到岸停我遇你止",
+			"人间烟火有你即是圆满",
+			"心有千千结结结皆是你",
+			"不求风月万千只求岁岁相伴",
+			"星河滚烫你是人间理想",
+			"此生一遇便觉人间值得",
+			"与君相守岁岁无忧",
+			"我的世界因你而完整",
+			"此生所求不过一个你",
+			"万物更替爱你永不移",
+			"心为你动情为你独钟",
+			"有你相伴岁月皆温柔",
+			"入目无别人四下皆是你",
+			"遇你惊鸿愿伴你余生",
+			"爱意随风起风止意难平",
+			"予你深情伴你岁岁安",
+			"星河万顷只许你一人",
+			"承蒙你出现够我喜欢久",
+			"以爱之名共度这一生",
+			"人间万般好不及你分毫",
+			"牵你的手从此不回头",
+			"满心都是你眉眼皆是情",
+			"岁月漫长你值得等待",
+			"喜你成疾药石无医矣",
+			"与你相守便是人间幸",
+			"朝暮与年岁共往与你行",
+			"尽我所能爱你所有事",
+			"日子慢慢，想念常常",
+			"所念皆星河，星河皆是你",
+			"风很温柔，花很浪漫，你很特别，我很想念",
+			"见不到的日子都在好好想念",
+			"岁岁年年，共占春风，也共念彼此",
+			"思念无声，字字真心",
+			"隔山隔海，心念未改",
+			"好久不见，甚是想念",
+			"万物皆好，唯缺你在",
+			"山海相隔，思念如故",
+			"晚风捎信，来我相思意",
+			"把想念藏进风里，吹向你",
+			"日子平淡，好在我喜欢的人都在心里",
+			"见字如面，愿你安好",
+			"思念是一场漫长的温柔",
+			"想你这件事，偷偷进行中",
+			"今日份想念，已送达",
+			"没什么事，就是有点想你",
+		];
+
+        const startScreen = document.querySelector('.start-screen');
+        const body = document.body;
+        let hasClicked = false;
+
+        // 点击事件处理
+        body.addEventListener('click', () => {
+            if (hasClicked) return;
+            hasClicked = true;
+
+            // 隐藏开始屏幕
+            startScreen.style.opacity = '0';
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+            }, 800);
+
+            // 依次创建并显示爱心便签
+            loveMessages.forEach((message, index) => {
+                setTimeout(() => {
+                    createLoveNote(message);
+                }, index * 200); // 0.2秒间隔
+            });
+        });
+
+        // 创建爱心便签函数
+        function createLoveNote(message) {
+            // 创建元素
+            const note = document.createElement('div');
+            const text = document.createElement('div');
+            
+            // 设置类名和内容
+            const colorClass = `color-${Math.floor(Math.random() * 5) + 1}`;
+            note.className = `love-note ${colorClass}`;
+            text.className = 'note-text';
+            text.textContent = message;
+            
+            note.appendChild(text);
+            body.appendChild(note);
+
+            // 随机位置
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const noteSize = 100;
+            
+            // 确保便签完全显示在屏幕内
+            const maxX = screenWidth - noteSize;
+            const maxY = screenHeight - noteSize;
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+            
+            note.style.left = `${randomX}px`;
+            note.style.top = `${randomY}px`;
+
+            // 触发显示动画
+            setTimeout(() => {
+                note.classList.add('show');
+            }, 50);
+
+            // 添加轻微浮动效果
+            addFloatAnimation(note);
+        }
+
+        // 添加浮动动画
+        function addFloatAnimation(element) {
+            let angle = 0;
+            const originalTop = parseInt(element.style.top);
+            
+            setInterval(() => {
+                angle += 0.02;
+                const floatY = Math.sin(angle) * 8; // 上下浮动距离
+                element.style.top = `${originalTop + floatY}px`;
+            }, 50);
+        }
+    </script>
+</body>
+</html>
